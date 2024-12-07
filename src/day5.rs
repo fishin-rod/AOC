@@ -6,8 +6,18 @@ fn main() {
     let rules = create_rules();
     println!("{:?}", rules);
     let correct = check_order(&rules);
-    println!("{:?}", correct);
+    println!("{:?}", correct.len());
+    let sum = middles(correct);
+    println!("{}", sum);
     println!("{:?}", start.elapsed());
+}
+
+fn middles(vec: Vec<Vec<i32>>) -> i32 {
+    let mut sum = 0;
+    for vec in vec {
+        sum += vec[vec.len() / 2];
+    }
+    sum
 }
 
 fn check_order(rules: &Vec<i32>) -> Vec<Vec<i32>> {
@@ -16,7 +26,16 @@ fn check_order(rules: &Vec<i32>) -> Vec<Vec<i32>> {
     for line in file_content.lines() {
         println!("{}", line);
         let values = line.split(',').map(|x| x.parse::<i32>().unwrap()).collect::<Vec<i32>>();
-        if values.iter().all(|x| rules.iter().position(|x1| x1 == x).unwrap() < values.iter().position(|x2| x2 == x).unwrap()) {
+        let mut order = true;
+        for i in 0..=values.len()-1 {
+            println!("{:?}", rules.iter().position(|x| x == &values[i]));
+            if let Some(pos) = rules.iter().position(|x| x == &values[i]) {
+                if !i < pos {
+                    order = false;
+                }
+            }
+        }
+        if order {
             println!("{:?}", values);
             corrects.push(values);
         }
