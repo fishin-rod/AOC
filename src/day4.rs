@@ -1,76 +1,80 @@
 use std::time::Instant;
 use std::fs;
 
+//Stole somthing I understand from Sam
 fn main() {
     let start = Instant::now();
     let file_content = fs::read_to_string("src/files/xmas.txt").expect("Unable to read file");
-    let grid: Vec<Vec<char>> = file_content
-        .lines()
-        .map(|line| line.chars().collect())
-        .collect();
-    println!("{:?}", grid);
-    let found_words = find_words(&grid);
 
-    for word in found_words.clone() {
-        println!("Found: {}", word);
-    }
-    println!("Found {} words", found_words.clone().len());
+    let found_words = find_words(file_content.as_str());
+    let p2 = f2(file_content.as_str());
+
+    println!("Found {} words", found_words);
+    println!("Found {} words in part 2", p2);
 
     println!("{:?}", start.elapsed());
 }
 
-fn find_words(grid: &[Vec<char>]) -> Vec<String> {
-    let mut found_words = Vec::new();
-    // Search horizontally
-    for row in grid {
-        let horizontal: String = row.iter().collect();
-        if horizontal.contains("xmas") {
-            found_words.push("xmas".to_string());
-
-        }
-    }
-    // Search vertically
-    for col in 0..grid[0].len() {
-        let vertical: String = grid.iter().map(|row| row[col]).collect();
-        if vertical.contains("xmas") {
-            found_words.push("xmas".to_string());
-        }
-    }
-
-    // Search diagonally (down-right and down-left)
-    let rows = grid.len();
-    let cols = grid[0].len();
-/* 
-    // Down-right diagonals
-    for start in 0..(rows + cols - 1) {
-        let mut diagonal = String::new();
-        for i in 0..=start {
-            let row = i;
-            let col = start - i;
-            if row < rows && col < cols {
-                diagonal.push(grid[row][col]);
+fn find_words(grid: &str) -> i32 {
+        let g: Vec<Vec<_>> = grid.lines().map(|l| l.bytes().collect()).collect();
+        let mut c = 0;
+        let p = [b'X', b'M', b'A', b'S', b'.'];
+        for y in 1..=g.len() {
+            for x in 1..=g[0].len() {
+                if g[y - 1][x - 1] == b'X' {
+                    for (dx, dy) in [
+                        (0, 1),
+                        (1, 0),
+                        (0, -1),
+                        (-1, 0),
+                        (-1, -1),
+                        (1, 1),
+                        (-1, 1),
+                        (1, -1),
+                    ] {
+                        let mut j = 0;
+                        let (mut xx, mut yy) = (x, y);
+                        while j < 4
+                            && yy > 0
+                            && yy <= g.len()
+                            && xx > 0
+                            && xx <= g[0].len()
+                            && g[yy - 1][xx - 1] == p[j]
+                        {
+                            xx = (xx as i32 + dx) as usize;
+                            yy = (yy as i32 + dy) as usize;
+                            j += 1
+                        }
+                        if j > 3 {
+                            c += 1
+                        }
+                    }
+                }
             }
         }
-        if diagonal.contains("xmas") {
-            found_words.push("xmas".to_string());
-        }
-    }
- 
-    // Down-left diagonals
-    for start in 0..(rows + cols - 1) {
-        let mut diagonal = String::new();
-        for i in 0..=start {
-            let row = i;
-            let col = cols - 1 - (start - i);
-            if row < rows && col < cols {
-                diagonal.push(grid[row][col]);
+        c as i32
+}
+
+fn f2(s: &str) -> usize {
+    let g: Vec<Vec<_>> = s.lines().map(|l| l.bytes().collect()).collect();
+    let mut c = 0;
+    for y in 1..g.len() - 1 {
+        for x in 1..g[0].len() - 1 {
+            if g[y][x] == b'A' {
+                match [
+                    g[y + 1][x + 1],
+                    g[y - 1][x - 1],
+                    g[y - 1][x + 1],
+                    g[y + 1][x - 1],
+                ] {
+                    [b'M', b'S', b'M', b'S'] => c += 1,
+                    [b'M', b'S', b'S', b'M'] => c += 1,
+                    [b'S', b'M', b'M', b'S'] => c += 1,
+                    [b'S', b'M', b'S', b'M'] => c += 1,
+                    _ => {}
+                }
             }
         }
-        if diagonal.contains("xmas") {
-            found_words.push("xmas".to_string());
-        }
     }
-    */
-
-    found_words
+    c
 }
