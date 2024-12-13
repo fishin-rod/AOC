@@ -1,21 +1,22 @@
 //rocks are my one and only friend
+// I ran part 2 for 2 hours and uhhh its being bad
 use std::fs;
 use std::time::Instant;
 
 fn main() {
     let start = Instant::now();
-    //let file = fs::read_to_string("src/files/stones.txt").expect("Unable to read file");
-    let file = "125 17";
-    let mut stones = file.split_ascii_whitespace().map(|n| n.parse().unwrap()).collect::<Vec<i32>>();
-    println!("{:?}", start.elapsed());
-    for b in 0..=1 {
+    let file = fs::read_to_string("src/files/stones.txt").expect("Unable to read file");
+    //let file = "125 17";
+    let mut stones = file.split_ascii_whitespace().map(|n| n.parse().unwrap()).collect::<Vec<i128>>();
+    for _ in 0..75 {
         stones = rules(stones);
     }
-    println!("{:?}", stones);
+    //println!("{:?}", stones);
+    println!("{:?}", stones.len());
     println!("{:?}", start.elapsed());
 }
 
-fn rules(stones: Vec<i32>) -> Vec<i32> {
+fn rules(stones: Vec<i128>) -> Vec<i128> {
     let mut new_stones = stones;
     let mut i = 0;
     while i < new_stones.len() {
