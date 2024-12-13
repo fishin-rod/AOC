@@ -8,4 +8,4 @@ regex = "1.11.1"
 
 [[bin]]
 name = "aoc"
-path = "src/day11.rs"
+path = "src/day13.rs"
