@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+cached = "0.54.0"
 regex = "1.11.1"
 
 [[bin]]
 name = "aoc"
-path = "src/day13.rs"
+path = "src/day14.rs"
