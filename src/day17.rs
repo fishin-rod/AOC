@@ -1,5 +1,4 @@
 use std::time::Instant;
-use std::fs;
 
 struct Comp {
     RegA: i128,
@@ -13,13 +12,38 @@ struct Comp {
 
 fn main() {
     let start = Instant::now();
-    let mut a = 729;
-    let mut b = 0;
-    let mut c = 0;
-    let codes = vec![0,1,5,4,3,0];
-    let mut current_code = 0;
-    let out  = Comp::new(a, b, c, codes).run();
-
+    //let a = 30344604;
+    let a = 117440;
+    let b = 0;
+    let c = 0;
+    //let codes = vec![0,3,5,4,3,0];
+    let codes = vec![2,4,1,1,7,5,1,5,4,5,0,3,5,5,3,0];
+    let mut x = 0;
+    let mut nums = 1;
+    loop {
+        // from 158088157855745 to 
+        //    
+        //      164545992421053 mine
+        // why is mine like 10000 higher
+        //      164540892147389 online
+        // scott if you seeing this tell me why
+        //     
+        let a = x;
+        let comp = Comp::new(a, b, c, codes.clone()).run();
+        if comp == codes {
+            println!("ans{:?}", a);
+            println!("comp: {:?}, codes: {:?}", comp, codes);
+            break;
+        }
+        if comp[comp.len() - nums..] == codes[codes.len() - nums..] {
+            println!("comp: {:?}, codes: {:?}", comp, codes);
+            nums += 1;
+            x *= 8;
+        }
+        x+=1 
+    }
+    //let _out  = Comp::new(a, b, c, codes).run();
+    println!("{:?}", start.elapsed());
 }
 
 impl Comp {
@@ -35,33 +59,33 @@ impl Comp {
         }
     }
 
-    fn run(&mut self) {
+    fn run(&mut self) -> Vec<i128> {
         // iterate throught the list of codes
         // send either the literal or commbo code to Oper
         // my color scheme is making this look sexy
-        let mut i = 0;
-        while i < self.Codes.len() {
-            match self.Codes[i] {
+        while self.Opcode < self.Codes.len() {
+            match self.Codes[self.Opcode] {
                 0 => {self.Oper = self.combo(self.Codes[self.Opcode+1]); self.adv();},
-                1 => {self.Oper = self.Codes[i+1]; self.bxl();},
-                2 => {self.Oper = self.combo(self.Codes[self.Opcode+1]); },
-                3 => {self.Oper = self.Codes[i+1]; self.jnz();},
-                4 => {self.bxc(); i += 2;},
+                1 => {self.Oper = self.Codes[self.Opcode+1]; self.bxl();},
+                2 => {self.Oper = self.combo(self.Codes[self.Opcode+1]); self.bst();},
+                3 => {self.Oper = self.Codes[self.Opcode+1]; self.jnz();},
+                4 => {self.bxc();},
                 5 => {self.Oper = self.combo(self.Codes[self.Opcode+1]); self.out();},
                 6 => {self.Oper = self.combo(self.Codes[self.Opcode+1]); self.bdv();},
                 7 => {self.Oper = self.combo(self.Codes[self.Opcode+1]); self.cdv();},
                 _ => {panic!("AEYYEYEYE")},
             }
         }
-        println!("{:?}", self.Out);
+        //println!("{:?}", self.Out);
+        self.Out.clone()
     }
 
     fn combo(&mut self, op: i128) -> i128 {
         match op {
-            0..=3 => return op,
-            4 => return self.RegA,
-            5 => return self.RegB,
-            6 => return self.RegC,
+            0..=3 => op,
+            4 => self.RegA,
+            5 => self.RegB,
+            6 => self.RegC,
             7 => panic!("a"),
             _ => panic!("a"),
         }
@@ -71,6 +95,7 @@ impl Comp {
     fn adv(&mut self) -> &mut Self {
         // combo
         // attempt to multiply with overflow :(
+        //println!("{:?}", self.Oper);
         let num = self.RegA as f64 / 2_i128.pow(self.Oper as u32) as f64;
         self.RegA = num.floor() as i128;
         self.Opcode += 2;
@@ -111,7 +136,7 @@ impl Comp {
 
     fn out(&mut self) -> &mut Self {
         // combo
-        self.Out.push(self.Oper);
+        self.Out.push(self.Oper % 8);
         self.Opcode += 2;
         self
     }
